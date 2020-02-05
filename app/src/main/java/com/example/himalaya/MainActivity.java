@@ -1,12 +1,15 @@
 package com.example.himalaya;
 
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.example.himalaya.adapters.IndicatorAdapter;
+import com.example.himalaya.adapters.MainContentAdapter;
 import com.example.himalaya.utils.LogUtil;
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
 import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack;
@@ -21,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
 
     private static final String TAG = "MainActivity";
     private MagicIndicator mMagicIndicator;
@@ -46,9 +49,14 @@ public class MainActivity extends AppCompatActivity {
         //ViewPager
         mContentPager = this.findViewById(R.id.content_pager);
 
+        //创建内容适配器
+        FragmentManager supportFragmentManager = getSupportFragmentManager();
+        MainContentAdapter mainContentAdapter = new MainContentAdapter(supportFragmentManager);
+        mContentPager.setAdapter(mainContentAdapter);
+
+
         //把viewPager和indicator绑定到一起
         mMagicIndicator.setNavigator(commonNavigator);
         ViewPagerHelper.bind(mMagicIndicator,mContentPager);
-
     }
 }
