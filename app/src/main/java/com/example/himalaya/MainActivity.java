@@ -1,5 +1,6 @@
 package com.example.himalaya;
 
+import android.nfc.Tag;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -29,21 +30,36 @@ public class MainActivity extends FragmentActivity {
     private static final String TAG = "MainActivity";
     private MagicIndicator mMagicIndicator;
     private ViewPager mContentPager;
+    private IndicatorAdapter mIndicatorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+        initEvent();
+    }
+
+    private void initEvent() {
+        mIndicatorAdapter.setOnIndicatorClickListener(new IndicatorAdapter.OnIndicatorTapClickListener() {
+            @Override
+            public void onTabClick(int index) {
+                LogUtil.d(TAG,"click is ---> "+index);
+                if (mContentPager != null) {
+                    mContentPager.setCurrentItem(index);
+                }
+            }
+        });
     }
 
     private void initView() {
         mMagicIndicator  = this.findViewById(R.id.main_indicator);
         mMagicIndicator.setBackgroundColor(this.getResources().getColor(R.color.main_color));
         //创建indicator的适配器
-        IndicatorAdapter adapter = new IndicatorAdapter(this);
+        mIndicatorAdapter = new IndicatorAdapter(this);
         CommonNavigator commonNavigator = new CommonNavigator(this);
-        commonNavigator.setAdapter(adapter);
+        commonNavigator.setAdjustMode(true);
+        commonNavigator.setAdapter(mIndicatorAdapter);
 
 
         //ViewPager
