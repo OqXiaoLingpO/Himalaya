@@ -5,8 +5,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.himalaya.R;
+import com.squareup.picasso.Picasso;
 import com.ximalaya.ting.android.opensdk.model.album.Album;
 
 import java.util.ArrayList;
@@ -19,15 +22,17 @@ public class RecommandListAdapter extends RecyclerView.Adapter<RecommandListAdap
     //创建每一个item
     @NonNull
     @Override
-    public InnerHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-
+    public InnerHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+        //找到view
         View itemView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_recommand,viewGroup,false);
-        return null;
+        return new InnerHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull InnerHolder innerHolder, int i) {
-
+    public void onBindViewHolder(@NonNull InnerHolder holder, int position) {
+        //设置数据
+        holder.itemView.setTag(position);
+        holder.setData(mData.get(position));
     }
 
     @Override
@@ -52,6 +57,28 @@ public class RecommandListAdapter extends RecyclerView.Adapter<RecommandListAdap
     public class InnerHolder extends RecyclerView.ViewHolder{
         public InnerHolder(@NonNull View itemView) {
             super(itemView);
+        }
+
+        public void setData(Album album) {
+            //找到各个控件，设置数据
+            //专辑封面
+            ImageView albumCoverIv = itemView.findViewById(R.id.album_cover);
+            //title
+            TextView albumTitleTv = itemView.findViewById(R.id.album_title_tv);
+            //描述
+            TextView albumDesTv = itemView.findViewById(R.id.album_description_tv);
+            //播放数量
+            TextView albumPlayCountTv = itemView.findViewById(R.id.album_play_count);
+            //专辑内容数量
+            TextView albumContentCountTv = itemView.findViewById(R.id.album_content_size);
+
+            albumTitleTv.setText(album.getAlbumTitle());
+            albumDesTv.setText(album.getAlbumIntro());
+            albumPlayCountTv.setText(album.getPlayCount()+"");
+            albumContentCountTv.setText(album.getIncludeTrackCount()+"");
+
+            Picasso.with(itemView.getContext()).load(album.getCoverUrlLarge()).into(albumCoverIv);
+
         }
     }
 }
