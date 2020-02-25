@@ -55,12 +55,12 @@ public class RecommendPresenter implements IRecommendPresenter {
     public void getRecommendList() {
         //获取推荐内容
         //封装参数
+        updateLoading();//加载中
         Map<String, String> map = new HashMap<>();
         //此接口表示一页数据返回多少条
-        map.put(DTransferConstants.LIKE_COUNT, Constants.RECOMMEND_COUNT+"");
+        map.put(DTransferConstants.LIKE_COUNT, Constants.RECOMMEND_COUNT + "");
 
         CommonRequest.getGuessLikeAlbum(map, new IDataCallBack<GussLikeAlbumList>() {
-
 
             @Override
             public void onSuccess(@Nullable GussLikeAlbumList gussLikeAlbumList) {
@@ -75,24 +75,42 @@ public class RecommendPresenter implements IRecommendPresenter {
 
             private void handlerRecommendResult(List<Album> albumList) {
                 //通知ui更新
-                if (mCallbacks != null) {
-                    for (IRecommendViewCallback callback : mCallbacks) {
-                        callback.onRecommendListLoaded(albumList);
+                if (albumList != null) {
+                    if (albumList.size()==0) {
+                        for (IRecommendViewCallback callback : mCallbacks) {
+                            callback.onEmpty();
+                        }
+                    }else{
+                        for (IRecommendViewCallback callback : mCallbacks) {
+                            callback.onRecommendListLoaded(albumList);
+                        }
                     }
                 }
             }
-
 
             @Override
             public void onError(int i, String s) {
                 //失败
                 Log.d(TAG, "errorCode ----=-=>" + i);
                 Log.d(TAG, "errorMsg  ---=--->" + s);
+                handlerError();
+            }
+
+            private void handlerError() {
+                if (mCallbacks != null) {
+                    for (IRecommendViewCallback callback : mCallbacks) {
+                        callback.onMetworkError();
+                    }
+                }
             }
         });
 
     }
-
+    private void updateLoading(){
+        for (IRecommendViewCallback callback : mCallbacks) {
+            callback.onLoading();
+        }
+    }
 
 
     @Override

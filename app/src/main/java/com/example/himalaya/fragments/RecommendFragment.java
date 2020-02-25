@@ -2,10 +2,8 @@ package com.example.himalaya.fragments;
 
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,17 +13,13 @@ import com.example.himalaya.adapters.RecommandListAdapter;
 import com.example.himalaya.base.BaseFragment;
 import com.example.himalaya.interfaces.IRecommendViewCallback;
 import com.example.himalaya.presenters.RecommendPresenter;
-import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
-import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
-import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack;
+import com.example.himalaya.utils.LogUtil;
+import com.example.himalaya.views.UILoader;
 import com.ximalaya.ting.android.opensdk.model.album.Album;
-import com.ximalaya.ting.android.opensdk.model.album.GussLikeAlbumList;
 
 import net.lucode.hackware.magicindicator.buildins.UIUtil;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class RecommendFragment extends BaseFragment implements IRecommendViewCallback {
 
@@ -33,11 +27,41 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
     private RecyclerView mRecommandRv;
     private RecommandListAdapter mRecommandListAdapter;
     private RecommendPresenter mRecommendPresenter;
+    private UILoader mUiLoader;
+    private View mRootView;
 
     @Override
-    protected View onSubViewLoaded(LayoutInflater layoutInflater, ViewGroup container) {
+    protected View onSubViewLoaded(final LayoutInflater layoutInflater, ViewGroup container) {
+
+        mUiLoader = new UILoader(getContext()) {
+            @Override
+            protected View getSuccessView(ViewGroup container) {
+                return createSuccessView(layoutInflater,container);
+            }
+        };
+
+
+
+//        //拿数据回来
+//        getRecommandData();
+        //获取到逻辑层对象
+        mRecommendPresenter = RecommendPresenter.getInstance();
+        //先要设置通知接口的注册
+        mRecommendPresenter.regiserViewCallback(this);
+        //获取推荐列表
+        mRecommendPresenter.getRecommendList();
+
+        if (mUiLoader.getParent() instanceof ViewGroup) {
+            ((ViewGroup) mUiLoader.getParent()).removeView(mUiLoader);
+        }
+
+        //返回view,给界面展示
+        return mUiLoader;
+    }
+
+    private View createSuccessView(LayoutInflater layoutInflater, ViewGroup container) {
         //view已经加载完成
-        View mRootView = layoutInflater.inflate(R.layout.fragment_recommend,container,false);
+        mRootView = layoutInflater.inflate(R.layout.fragment_recommend,container,false);
         //RecyclerView的使用
         //1、找到对应的空间
         mRecommandRv = mRootView.findViewById(R.id.recommand_list);
@@ -58,15 +82,6 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         //3、设置适配器
         mRecommandListAdapter = new RecommandListAdapter();
         mRecommandRv.setAdapter(mRecommandListAdapter);
-//        //拿数据回来
-//        getRecommandData();
-        //获取到逻辑层对象
-        mRecommendPresenter = RecommendPresenter.getInstance();
-        //先要设置通知接口的注册
-        mRecommendPresenter.regiserViewCallback(this);
-        //获取推荐列表
-        mRecommendPresenter.getRecommendList();
-        //返回view,给界面展示
         return mRootView;
     }
 
@@ -78,19 +93,31 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
 
     @Override
     public void onRecommendListLoaded(List<Album> result) {
+        LogUtil.d(TAG,"onRecommendListLoaded");
         //当我们获取到推荐内容的时候，这个方法就会被调用，（成功了）
         //数据回来后，更新ui
         mRecommandListAdapter.setData(result);
+        mUiLoader.updateStatus(UILoader.UIStatus.SUCCESS);
     }
 
     @Override
-    public void onLoaderMore(List<Album> result) {
-
+    public void onMetworkError() {
+        LogUtil.d(TAG,"onMetworkError");
+        mUiLoader.updateStatus(UILoader.UIStatus.NETWORK_ERROR);
     }
 
     @Override
-    public void onRefreshMore(List<Album> result) {
+    public void onEmpty() {
+        LogUtil.d(TAG,"onEmpty");
 
+        mUiLoader.updateStatus(UILoader.UIStatus.EMPTY);
+    }
+
+    @Override
+    public void onLoading() {
+        LogUtil.d(TAG,"onLoading");
+
+        mUiLoader.updateStatus(UILoader.UIStatus.LOADING);
     }
 
     @Override
