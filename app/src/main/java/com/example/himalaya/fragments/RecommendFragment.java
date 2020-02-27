@@ -21,7 +21,7 @@ import net.lucode.hackware.magicindicator.buildins.UIUtil;
 
 import java.util.List;
 
-public class RecommendFragment extends BaseFragment implements IRecommendViewCallback {
+public class RecommendFragment extends BaseFragment implements IRecommendViewCallback, UILoader.OnRetryClickListener {
 
     private final String TAG = "RecommendFragment";
     private RecyclerView mRecommandRv;
@@ -54,6 +54,8 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         if (mUiLoader.getParent() instanceof ViewGroup) {
             ((ViewGroup) mUiLoader.getParent()).removeView(mUiLoader);
         }
+
+        mUiLoader.setOnRetryClickListener(this);
 
         //返回view,给界面展示
         return mUiLoader;
@@ -126,6 +128,15 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         //取消接口的注册，避免内存泄漏(此部分已经用不上了，但还是有运行持有，java的垃圾回收器回收不了，就溢出、泄漏了)
         if (mRecommendPresenter != null) {
             mRecommendPresenter.unRegisterViewCallback(this);
+        }
+    }
+
+    @Override
+    public void onRetryClick() {
+        //表示网络不佳，用户点击了重试
+        //重新获取数据即可
+        if (mRecommendPresenter != null) {
+            mRecommendPresenter.getRecommendList();
         }
     }
 }
