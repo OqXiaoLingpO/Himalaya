@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.himalaya.R;
+import com.example.himalaya.utils.LogUtil;
 import com.squareup.picasso.Picasso;
 import com.ximalaya.ting.android.opensdk.model.album.Album;
 
@@ -18,6 +19,8 @@ import java.util.List;
 public class RecommandListAdapter extends RecyclerView.Adapter<RecommandListAdapter.InnerHolder> {
 
     private List<Album> mData = new ArrayList<>();
+    private String TAG = "RecommandListAdapter";
+    private onRecommendClickListener mItemClickListener = null;
 
     //创建每一个item
     @NonNull
@@ -29,9 +32,18 @@ public class RecommandListAdapter extends RecyclerView.Adapter<RecommandListAdap
     }
 
     @Override
-    public void onBindViewHolder(@NonNull InnerHolder holder, int position) {
+    public void onBindViewHolder(@NonNull InnerHolder holder, final int position) {
         //设置数据
         holder.itemView.setTag(position);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mItemClickListener != null) {
+                    mItemClickListener.onItemClick((Integer) v.getTag());
+                }
+                LogUtil.d(TAG,"itemView click--------->" +position);
+            }
+        });
         holder.setData(mData.get(position));
     }
 
@@ -80,5 +92,15 @@ public class RecommandListAdapter extends RecyclerView.Adapter<RecommandListAdap
             Picasso.with(itemView.getContext()).load(album.getCoverUrlLarge()).into(albumCoverIv);
 
         }
+    }
+
+    //用于外部注册接口，找到程序
+    public void setOnRecommendItemClickListener(onRecommendClickListener listener){
+        this.mItemClickListener = listener;
+    }
+
+    //暴露接口，方便外部程序处理
+    public interface onRecommendClickListener{
+        void onItemClick(int position);
     }
 }

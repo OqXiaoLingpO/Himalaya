@@ -1,5 +1,6 @@
 package com.example.himalaya.fragments;
 
+import android.content.Intent;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.himalaya.DetaiActivity;
 import com.example.himalaya.R;
 import com.example.himalaya.adapters.RecommandListAdapter;
 import com.example.himalaya.base.BaseFragment;
@@ -21,7 +23,7 @@ import net.lucode.hackware.magicindicator.buildins.UIUtil;
 
 import java.util.List;
 
-public class RecommendFragment extends BaseFragment implements IRecommendViewCallback, UILoader.OnRetryClickListener {
+public class RecommendFragment extends BaseFragment implements IRecommendViewCallback, UILoader.OnRetryClickListener, RecommandListAdapter.onRecommendClickListener {
 
     private final String TAG = "RecommendFragment";
     private RecyclerView mRecommandRv;
@@ -84,6 +86,7 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         //3、设置适配器
         mRecommandListAdapter = new RecommandListAdapter();
         mRecommandRv.setAdapter(mRecommandListAdapter);
+        mRecommandListAdapter.setOnRecommendItemClickListener(this);
         return mRootView;
     }
 
@@ -138,5 +141,12 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         if (mRecommendPresenter != null) {
             mRecommendPresenter.getRecommendList();
         }
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        //item被点击了,跳转到详情界面
+        Intent intent = new Intent(getContext(), DetaiActivity.class);
+        startActivity(intent);
     }
 }

@@ -76,6 +76,8 @@ public class RecommendPresenter implements IRecommendPresenter {
             private void handlerRecommendResult(List<Album> albumList) {
                 //通知ui更新
                 if (albumList != null) {
+//                    //测试，清空，让界面显示空
+//                    albumList.clear();
                     if (albumList.size()==0) {
                         for (IRecommendViewCallback callback : mCallbacks) {
                             callback.onEmpty();
@@ -126,7 +128,7 @@ public class RecommendPresenter implements IRecommendPresenter {
     @Override
     public void regiserViewCallback(IRecommendViewCallback callback) {
         if (mCallbacks != null && !mCallbacks.contains(callback)) {
-            mCallbacks.add(callback);
+            mCallbacks.add(callback);//用列表装更新信息的好处是，无论用户进入哪个界面，看到的内容都是最新的
         }
     }
 
